@@ -4,7 +4,7 @@ import asyncio
 from collections.abc import AsyncGenerator
 
 import pytest
-from httpx import AsyncClient
+from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.database import Base, get_db
@@ -55,7 +55,9 @@ async def client(override_get_db) -> AsyncGenerator[AsyncClient, None]:
     """Create a test client."""
     app.dependency_overrides[get_db] = override_get_db
 
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
         yield ac
 
     app.dependency_overrides.clear()
@@ -78,7 +80,9 @@ async def test_user(db_session: AsyncSession) -> User:
 @pytest.fixture
 def auth_token(test_user: User) -> str:
     """Generate an auth token for the test user."""
-    return create_access_token(data={"sub": test_user.id, "email": test_user.email})
+    return create_access_token(
+        data={"sub": str(test_user.id), "email": test_user.email}
+    )
 
 
 @pytest.fixture
