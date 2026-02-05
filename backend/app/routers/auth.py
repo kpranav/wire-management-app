@@ -1,4 +1,5 @@
 """Authentication router."""
+
 import secrets
 import string
 

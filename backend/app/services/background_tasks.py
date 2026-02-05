@@ -1,4 +1,5 @@
 """Background tasks using Celery."""
+
 import time
 
 from celery import Celery

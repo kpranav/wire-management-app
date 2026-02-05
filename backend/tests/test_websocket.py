@@ -1,4 +1,5 @@
 """Tests for WebSocket functionality."""
+
 import pytest
 from httpx import AsyncClient
 

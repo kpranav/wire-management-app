@@ -1,4 +1,5 @@
 """User model for authentication."""
+
 from sqlalchemy import Boolean, Column, DateTime, Integer, String
 from sqlalchemy.sql import func
 

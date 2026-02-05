@@ -1,4 +1,5 @@
 """Caching service for business logic."""
+
 import json
 
 from app.utils.redis_client import RedisCache

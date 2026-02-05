@@ -1,4 +1,5 @@
 """Global error handling middleware."""
+
 import logging
 from datetime import datetime
 

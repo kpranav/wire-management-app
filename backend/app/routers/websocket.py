@@ -1,4 +1,5 @@
 """WebSocket router for real-time updates."""
+
 import asyncio
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
@@ -48,10 +49,12 @@ async def websocket_endpoint(websocket: WebSocket):
             await websocket.receive_text()
 
             # Echo back or handle client messages
-            await websocket.send_json({
-                "type": "ack",
-                "message": "Message received",
-            })
+            await websocket.send_json(
+                {
+                    "type": "ack",
+                    "message": "Message received",
+                }
+            )
 
     except WebSocketDisconnect:
         manager.disconnect(websocket)
