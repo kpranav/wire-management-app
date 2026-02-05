@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres-dev:
     image: postgres:15-alpine
@@ -29,7 +27,7 @@ services:
       - redis-dev-data:/data
 
   api-dev:
-    build: ./backend
+    image: ${DOCKERHUB_USERNAME}/wire-api:${IMAGE_TAG:-latest}
     container_name: wire-api-dev
     restart: unless-stopped
     ports:
@@ -48,18 +46,9 @@ services:
         condition: service_healthy
       redis-dev:
         condition: service_started
-    volumes:
-      - ./backend:/app
 
   ui-dev:
-    build:
-      context: ./frontend
-      args:
-        VITE_API_URL: http://localhost:8001
-        VITE_WS_URL: ws://localhost:8001
-        VITE_FEATURE_CSV_EXPORT: "true"
-        VITE_FEATURE_ADVANCED_FILTERS: "true"
-        VITE_FEATURE_AUDIT_LOG: "true"
+    image: ${DOCKERHUB_USERNAME}/wire-ui:${IMAGE_TAG:-latest}
     container_name: wire-ui-dev
     restart: unless-stopped
     ports:
