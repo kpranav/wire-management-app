@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  postgres-uat:
+    image: postgres:15-alpine
+    container_name: wire-postgres-uat
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: wire_uat
+      POSTGRES_USER: wireuser
+      POSTGRES_PASSWORD: ${UAT_DB_PASSWORD}
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres-uat-data:/var/lib/postgresql/data
+
+  redis-uat:
+    image: redis:7-alpine
+    container_name: wire-redis-uat
+    restart: unless-stopped
+    ports:
+      - "6381:6379"
+    volumes:
+      - redis-uat-data:/data
+
+  api-uat:
+    image: ${DOCKERHUB_USERNAME}/wire-api:${IMAGE_TAG:-latest}
+    container_name: wire-api-uat
+    restart: unless-stopped
+    ports:
+      - "8003:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://wireuser:${UAT_DB_PASSWORD}@postgres-uat:5432/wire_uat
+      REDIS_URL: redis://redis-uat:6379/0
+      JWT_SECRET: ${UAT_JWT_SECRET}
+      ENVIRONMENT: uat
+      DEBUG: "false"
+      FEATURE_CSV_EXPORT: "false"
+      FEATURE_ADVANCED_FILTERS: "true"
+      FEATURE_AUDIT_LOG: "false"
+    depends_on:
+      - postgres-uat
+      - redis-uat
+
+  ui-uat:
+    image: ${DOCKERHUB_USERNAME}/wire-ui:${IMAGE_TAG:-latest}
+    container_name: wire-ui-uat
+    restart: unless-stopped
+    ports:
+      - "3003:80"
+    depends_on:
+      - api-uat
+
+volumes:
+  postgres-uat-data:
+  redis-uat-data:

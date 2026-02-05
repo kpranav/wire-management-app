@@ -1,0 +1,17 @@
+# Global owners (review all PRs)
+* @your-team-lead
+
+# Backend code
+/backend/ @backend-lead @senior-backend-dev
+
+# Frontend code
+/frontend/ @frontend-lead @senior-frontend-dev
+
+# CI/CD and infrastructure
+/.github/workflows/ @devops-lead
+/docker-compose*.yml @devops-lead
+/backend/Dockerfile @devops-lead
+/frontend/Dockerfile @devops-lead
+
+# Database migrations (require extra scrutiny)
+/backend/alembic/versions/ @backend-lead @database-admin

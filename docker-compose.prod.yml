@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  postgres-prod:
+    image: postgres:15-alpine
+    container_name: wire-postgres-prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: wire_prod
+      POSTGRES_USER: wireuser
+      POSTGRES_PASSWORD: ${PROD_DB_PASSWORD}
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres-prod-data:/var/lib/postgresql/data
+      - ./backups:/backups
+
+  redis-prod:
+    image: redis:7-alpine
+    container_name: wire-redis-prod
+    restart: unless-stopped
+    ports:
+      - "6382:6379"
+    volumes:
+      - redis-prod-data:/data
+    command: redis-server --appendonly yes
+
+  api-prod:
+    image: ${DOCKERHUB_USERNAME}/wire-api:${IMAGE_TAG:-latest}
+    container_name: wire-api-prod
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://wireuser:${PROD_DB_PASSWORD}@postgres-prod:5432/wire_prod
+      REDIS_URL: redis://redis-prod:6379/0
+      JWT_SECRET: ${PROD_JWT_SECRET}
+      ENVIRONMENT: production
+      DEBUG: "false"
+      FEATURE_CSV_EXPORT: "false"
+      FEATURE_ADVANCED_FILTERS: "true"
+      FEATURE_AUDIT_LOG: "false"
+    depends_on:
+      - postgres-prod
+      - redis-prod
+
+  ui-prod:
+    image: ${DOCKERHUB_USERNAME}/wire-ui:${IMAGE_TAG:-latest}
+    container_name: wire-ui-prod
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - api-prod
+
+volumes:
+  postgres-prod-data:
+  redis-prod-data:

@@ -1,0 +1,15 @@
+repos:
+  - repo: local
+    hooks:
+      - id: backend-lint
+        name: Backend Lint
+        entry: make backend-lint
+        language: system
+        pass_filenames: false
+        files: ^backend/
+      - id: frontend-lint
+        name: Frontend Lint
+        entry: make frontend-lint
+        language: system
+        pass_filenames: false
+        files: ^frontend/

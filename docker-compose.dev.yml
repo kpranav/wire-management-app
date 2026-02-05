@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  postgres-dev:
+    image: postgres:15-alpine
+    container_name: wire-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: wire_dev
+      POSTGRES_USER: wireuser
+      POSTGRES_PASSWORD: devpass123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-dev-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wireuser"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis-dev:
+    image: redis:7-alpine
+    container_name: wire-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-dev-data:/data
+
+  api-dev:
+    build: ./backend
+    container_name: wire-api-dev
+    restart: unless-stopped
+    ports:
+      - "8001:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://wireuser:devpass123@postgres-dev:5432/wire_dev
+      REDIS_URL: redis://redis-dev:6379/0
+      JWT_SECRET: dev-secret-key-change-in-production
+      ENVIRONMENT: development
+      DEBUG: "true"
+      FEATURE_CSV_EXPORT: "true"
+      FEATURE_ADVANCED_FILTERS: "true"
+      FEATURE_AUDIT_LOG: "true"
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+      redis-dev:
+        condition: service_started
+    volumes:
+      - ./backend:/app
+
+  ui-dev:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost:8001
+        VITE_WS_URL: ws://localhost:8001
+        VITE_FEATURE_CSV_EXPORT: "true"
+        VITE_FEATURE_ADVANCED_FILTERS: "true"
+        VITE_FEATURE_AUDIT_LOG: "true"
+    container_name: wire-ui-dev
+    restart: unless-stopped
+    ports:
+      - "3001:80"
+    depends_on:
+      - api-dev
+
+volumes:
+  postgres-dev-data:
+  redis-dev-data:

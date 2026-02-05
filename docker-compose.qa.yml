@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  postgres-qa:
+    image: postgres:15-alpine
+    container_name: wire-postgres-qa
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: wire_qa
+      POSTGRES_USER: wireuser
+      POSTGRES_PASSWORD: ${QA_DB_PASSWORD:-qapass123}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-qa-data:/var/lib/postgresql/data
+
+  redis-qa:
+    image: redis:7-alpine
+    container_name: wire-redis-qa
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis-qa-data:/data
+
+  api-qa:
+    image: ${DOCKERHUB_USERNAME}/wire-api:${IMAGE_TAG:-latest}
+    container_name: wire-api-qa
+    restart: unless-stopped
+    ports:
+      - "8002:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://wireuser:${QA_DB_PASSWORD:-qapass123}@postgres-qa:5432/wire_qa
+      REDIS_URL: redis://redis-qa:6379/0
+      JWT_SECRET: ${QA_JWT_SECRET}
+      ENVIRONMENT: qa
+      DEBUG: "false"
+      FEATURE_CSV_EXPORT: "false"
+      FEATURE_ADVANCED_FILTERS: "true"
+      FEATURE_AUDIT_LOG: "false"
+    depends_on:
+      - postgres-qa
+      - redis-qa
+
+  ui-qa:
+    image: ${DOCKERHUB_USERNAME}/wire-ui:${IMAGE_TAG:-latest}
+    container_name: wire-ui-qa
+    restart: unless-stopped
+    ports:
+      - "3002:80"
+    depends_on:
+      - api-qa
+
+volumes:
+  postgres-qa-data:
+  redis-qa-data:
