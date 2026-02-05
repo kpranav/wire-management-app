@@ -33,6 +33,7 @@ services:
       JWT_SECRET: ${UAT_JWT_SECRET}
       ENVIRONMENT: uat
       DEBUG: "false"
+      CORS_ORIGINS: "http://localhost:3003,http://51.20.55.26:3003"
       FEATURE_CSV_EXPORT: "false"
       FEATURE_ADVANCED_FILTERS: "true"
       FEATURE_AUDIT_LOG: "false"
