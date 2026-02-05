@@ -100,24 +100,29 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push backend image
-        run: |
-          cd backend
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/wire-api:${{ github.sha }} .
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/wire-api:latest .
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/wire-api:${{ github.sha }}
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/wire-api:latest
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/wire-api:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/wire-api:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/wire-api:latest
+          cache-to: type=inline
 
       - name: Build and push frontend image
-        run: |
-          cd frontend
-          docker build \
-            --build-arg VITE_API_URL=http://localhost:8001 \
-            --build-arg VITE_WS_URL=ws://localhost:8001 \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/wire-ui:${{ github.sha }} \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/wire-ui:latest \
-            .
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/wire-ui:${{ github.sha }}
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/wire-ui:latest
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          build-args: |
+            VITE_API_URL=http://localhost:8001
+            VITE_WS_URL=ws://localhost:8001
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/wire-ui:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/wire-ui:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/wire-ui:latest
+          cache-to: type=inline
 
   deploy-dev:
     needs: build-images
