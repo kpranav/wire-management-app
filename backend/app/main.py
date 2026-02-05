@@ -1,17 +1,17 @@
 """Main FastAPI application."""
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
+
 from app.config import settings
-from app.routers import auth_router, wires_router
-from app.routers.websocket import router as websocket_router
 from app.middleware.error_handler import (
+    general_exception_handler,
     http_exception_handler,
     validation_exception_handler,
-    general_exception_handler,
 )
+from app.routers import auth_router, wires_router
+from app.routers.websocket import router as websocket_router
 from app.utils.redis_client import cache
-from fastapi import HTTPException
 
 app = FastAPI(
     title=settings.APP_NAME,

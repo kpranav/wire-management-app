@@ -1,14 +1,21 @@
 """Authentication router."""
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from app.database import get_db
-from app.models import User
-from app.schemas import UserCreate, UserLogin, UserResponse, Token
-from app.utils.security import hash_password, verify_password, create_access_token, create_refresh_token
-from app.services.auth_service import get_current_user
 import secrets
 import string
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.database import get_db
+from app.models import User
+from app.schemas import Token, UserCreate, UserLogin, UserResponse
+from app.services.auth_service import get_current_user
+from app.utils.security import (
+    create_access_token,
+    create_refresh_token,
+    hash_password,
+    verify_password,
+)
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 

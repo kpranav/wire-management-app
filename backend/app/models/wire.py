@@ -1,7 +1,9 @@
 """Wire model for wire transfers."""
-from sqlalchemy import Column, Integer, String, Numeric, DateTime, ForeignKey, Enum
-from sqlalchemy.sql import func
 import enum
+
+from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, Numeric, String
+from sqlalchemy.sql import func
+
 from app.database import Base
 
 

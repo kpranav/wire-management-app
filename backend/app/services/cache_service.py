@@ -1,6 +1,6 @@
 """Caching service for business logic."""
-from typing import Optional, List
 import json
+
 from app.utils.redis_client import RedisCache
 
 
@@ -11,13 +11,13 @@ class CacheService:
         self.cache = cache
 
     # Wire caching
-    async def get_user_wires(self, user_id: int) -> Optional[List[dict]]:
+    async def get_user_wires(self, user_id: int) -> list[dict] | None:
         """Get cached wire list for user."""
         key = f"wires:user:{user_id}"
         cached = await self.cache.get(key)
         return json.loads(cached) if cached else None
 
-    async def set_user_wires(self, user_id: int, wires: List[dict], ttl: int = 300):
+    async def set_user_wires(self, user_id: int, wires: list[dict], ttl: int = 300):
         """Cache wire list for user (5 min TTL)."""
         key = f"wires:user:{user_id}"
         await self.cache.set(key, json.dumps(wires), ttl)
@@ -27,7 +27,7 @@ class CacheService:
         await self.cache.delete(f"wires:user:{user_id}")
 
     # Single wire caching
-    async def get_wire(self, wire_id: int) -> Optional[dict]:
+    async def get_wire(self, wire_id: int) -> dict | None:
         """Get cached wire by ID."""
         key = f"wire:{wire_id}"
         cached = await self.cache.get(key)

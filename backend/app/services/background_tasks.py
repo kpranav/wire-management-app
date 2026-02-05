@@ -1,7 +1,9 @@
 """Background tasks using Celery."""
-from celery import Celery
-from app.config import settings
 import time
+
+from celery import Celery
+
+from app.config import settings
 
 # Create Celery app
 celery_app = Celery(

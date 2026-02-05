@@ -1,5 +1,6 @@
 """Tests for caching functionality."""
 import pytest
+
 from app.services.cache_service import CacheService
 from app.utils.redis_client import RedisCache
 

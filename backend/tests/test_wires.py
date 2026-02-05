@@ -1,7 +1,8 @@
 """Tests for wire endpoints."""
 import pytest
 from httpx import AsyncClient
-from app.models import User, Wire
+
+from app.models import Wire
 
 
 @pytest.mark.asyncio

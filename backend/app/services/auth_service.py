@@ -1,9 +1,10 @@
 """Authentication service."""
-from typing import Optional
+
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.database import get_db
 from app.models import User
 from app.schemas import TokenData
@@ -29,7 +30,7 @@ async def get_current_user(
     if payload is None:
         raise credentials_exception
 
-    user_id: Optional[int] = payload.get("sub")
+    user_id: int | None = payload.get("sub")
     if user_id is None:
         raise credentials_exception
 

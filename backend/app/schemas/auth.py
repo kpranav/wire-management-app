@@ -1,7 +1,7 @@
 """Pydantic schemas for authentication."""
-from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
-from typing import Optional
+
+from pydantic import BaseModel, EmailStr, Field
 
 
 class UserBase(BaseModel):
@@ -45,5 +45,5 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     """Schema for token payload data."""
 
-    user_id: Optional[int] = None
-    email: Optional[str] = None
+    user_id: int | None = None
+    email: str | None = None

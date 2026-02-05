@@ -1,19 +1,20 @@
 """Alembic environment configuration."""
+import asyncio
+import sys
 from logging.config import fileConfig
+from pathlib import Path
+
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
+
 from alembic import context
-import asyncio
-import sys
-from pathlib import Path
 
 # Add parent directory to path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from app.database import Base
 from app.config import settings
-from app.models import User, Wire  # Import all models
+from app.database import Base
 
 # this is the Alembic Config object
 config = context.config
