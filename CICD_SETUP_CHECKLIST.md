@@ -174,7 +174,7 @@ SSH into your EC2 instance and follow the setup:
 
 ```bash
 # SSH into EC2
-ssh -i /Users/pranav/source/aws/kpranav_keypair_01.pem ec2-user@YOUR_EC2_IP
+ssh -i /Users/pranav/source/aws/kpranav_keypair_01.pem ec2-user@ec2-51-20-55-26.eu-north-1.compute.amazonaws.com
 ```
 
 ### Install Docker (if not already done)
@@ -219,8 +219,30 @@ mkdir -p ~/wire-app-qa
 mkdir -p ~/wire-app-uat
 mkdir -p ~/wire-app-prod
 
-# Create directory for Docker Compose files
+# Create directory for Docker Compose files (optional)
 mkdir -p ~/wire-app-compose
+```
+
+### Docker Compose Files Deployment
+
+**✅ Automated**: GitHub Actions automatically copies the Docker Compose files to EC2 during each deployment. No manual setup required!
+
+Each deployment workflow:
+1. Checks out the code
+2. Copies the environment-specific `docker-compose.*.yml` file to EC2
+3. Pulls the latest Docker images
+4. Starts/restarts the containers
+
+You can verify files are deployed by SSH'ing into EC2:
+```bash
+# SSH into EC2
+ssh -i /path/to/your-key.pem ec2-user@YOUR_EC2_IP
+
+# Check files (will be created on first deployment)
+ls -la ~/wire-app-dev/docker-compose.dev.yml
+ls -la ~/wire-app-qa/docker-compose.qa.yml
+ls -la ~/wire-app-uat/docker-compose.uat.yml
+ls -la ~/wire-app-prod/docker-compose.prod.yml
 ```
 
 ### Configure EC2 Security Groups

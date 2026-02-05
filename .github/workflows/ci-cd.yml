@@ -129,6 +129,17 @@ jobs:
     if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy Docker Compose file to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "docker-compose.dev.yml"
+          target: "/home/ec2-user/wire-app-dev/"
+
       - name: Deploy to Dev
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -136,7 +147,7 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/ec2-user/wire-app
+            cd /home/ec2-user/wire-app-dev
             export IMAGE_TAG=${{ github.sha }}
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
             docker compose -f docker-compose.dev.yml pull
@@ -148,6 +159,17 @@ jobs:
     if: github.ref == 'refs/heads/qa'
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy Docker Compose file to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "docker-compose.qa.yml"
+          target: "/home/ec2-user/wire-app-qa/"
+
       - name: Deploy to QA
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -155,7 +177,7 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/ec2-user/wire-app
+            cd /home/ec2-user/wire-app-qa
             export IMAGE_TAG=${{ github.sha }}
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
             docker compose -f docker-compose.qa.yml pull
@@ -168,6 +190,17 @@ jobs:
     runs-on: ubuntu-latest
     environment: uat
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy Docker Compose file to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "docker-compose.uat.yml"
+          target: "/home/ec2-user/wire-app-uat/"
+
       - name: Deploy to UAT
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -175,7 +208,7 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/ec2-user/wire-app
+            cd /home/ec2-user/wire-app-uat
             export IMAGE_TAG=${{ github.sha }}
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
             export UAT_DB_PASSWORD=${{ secrets.UAT_DB_PASSWORD }}
@@ -190,6 +223,17 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy Docker Compose file to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "docker-compose.prod.yml"
+          target: "/home/ec2-user/wire-app-prod/"
+
       - name: Deploy to Production
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -197,7 +241,7 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/ec2-user/wire-app
+            cd /home/ec2-user/wire-app-prod
             export IMAGE_TAG=${{ github.sha }}
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
             export PROD_DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
