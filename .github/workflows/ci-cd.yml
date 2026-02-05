@@ -161,9 +161,7 @@ jobs:
     needs: build-images
     if: github.ref == 'refs/heads/uat'
     runs-on: ubuntu-latest
-    environment:
-      name: uat
-      url: http://${{ secrets.EC2_HOST }}:3003
+    environment: uat
     steps:
       - name: Deploy to UAT
         uses: appleboy/ssh-action@v1.0.0
@@ -185,9 +183,7 @@ jobs:
     needs: build-images
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    environment:
-      name: production
-      url: http://${{ secrets.EC2_HOST }}:3000
+    environment: production
     steps:
       - name: Deploy to Production
         uses: appleboy/ssh-action@v1.0.0
