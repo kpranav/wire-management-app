@@ -35,7 +35,7 @@ services:
       JWT_SECRET: ${PROD_JWT_SECRET}
       ENVIRONMENT: production
       DEBUG: "false"
-      CORS_ORIGINS: "http://localhost:3000,http://51.20.55.26:3000"
+      CORS_ORIGINS: "http://localhost:3000,http://${EC2_HOST:-localhost}:3000"
       FEATURE_CSV_EXPORT: "false"
       FEATURE_ADVANCED_FILTERS: "true"
       FEATURE_AUDIT_LOG: "false"

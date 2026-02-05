@@ -33,7 +33,7 @@ services:
       JWT_SECRET: ${QA_JWT_SECRET}
       ENVIRONMENT: qa
       DEBUG: "false"
-      CORS_ORIGINS: "http://localhost:3002,http://51.20.55.26:3002"
+      CORS_ORIGINS: "http://localhost:3002,http://${EC2_HOST:-localhost}:3002"
       FEATURE_CSV_EXPORT: "false"
       FEATURE_ADVANCED_FILTERS: "true"
       FEATURE_AUDIT_LOG: "false"

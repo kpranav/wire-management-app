@@ -150,6 +150,7 @@ jobs:
             cd /home/ec2-user/wire-app-dev
             export IMAGE_TAG=${{ github.sha }}
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            export EC2_HOST=${{ secrets.EC2_HOST }}
             docker-compose -f docker-compose.dev.yml pull
             docker-compose -f docker-compose.dev.yml up -d
             echo "✅ Dev deployment completed"
@@ -180,6 +181,7 @@ jobs:
             cd /home/ec2-user/wire-app-qa
             export IMAGE_TAG=${{ github.sha }}
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            export EC2_HOST=${{ secrets.EC2_HOST }}
             docker-compose -f docker-compose.qa.yml pull
             docker-compose -f docker-compose.qa.yml up -d
             echo "✅ QA deployment completed"
@@ -211,6 +213,7 @@ jobs:
             cd /home/ec2-user/wire-app-uat
             export IMAGE_TAG=${{ github.sha }}
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            export EC2_HOST=${{ secrets.EC2_HOST }}
             export UAT_DB_PASSWORD=${{ secrets.UAT_DB_PASSWORD }}
             export UAT_JWT_SECRET=${{ secrets.UAT_JWT_SECRET }}
             docker-compose -f docker-compose.uat.yml pull
@@ -244,6 +247,7 @@ jobs:
             cd /home/ec2-user/wire-app-prod
             export IMAGE_TAG=${{ github.sha }}
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            export EC2_HOST=${{ secrets.EC2_HOST }}
             export PROD_DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
             export PROD_JWT_SECRET=${{ secrets.PROD_JWT_SECRET }}
             docker-compose -f docker-compose.prod.yml pull
