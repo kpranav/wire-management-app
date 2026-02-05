@@ -165,7 +165,7 @@ export function WireList() {
                   <TableCell>{wire.reference_number}</TableCell>
                   <TableCell>{wire.sender_name}</TableCell>
                   <TableCell>{wire.recipient_name}</TableCell>
-                  <TableCell align="right">{wire.amount.toFixed(2)}</TableCell>
+                  <TableCell align="right">{Number(wire.amount).toFixed(2)}</TableCell>
                   <TableCell>{wire.currency}</TableCell>
                   <TableCell>
                     <Chip label={wire.status} color={getStatusColor(wire.status)} size="small" />

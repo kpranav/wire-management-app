@@ -1,8 +1,9 @@
 /**
  * Login component for authentication
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Box,
   Button,
@@ -22,7 +23,14 @@ export function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { login, register } = useAuth();
+
+  // Clear any stale tokens when login page loads
+  useEffect(() => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +40,9 @@ export function Login() {
       if (tab === 0) {
         // Login
         await login({ email, password });
+        // Wait for user data to be fetched before navigating
+        await queryClient.refetchQueries({ queryKey: ['currentUser'] });
+        // Navigate using React Router (no full page reload)
         navigate('/');
       } else {
         // Register

@@ -64,7 +64,7 @@ export function WireDetail() {
       reset({
         sender_name: wire.sender_name,
         recipient_name: wire.recipient_name,
-        amount: wire.amount,
+        amount: Number(wire.amount),
         currency: wire.currency,
         status: wire.status as WireStatus,
       });

@@ -63,9 +63,9 @@ async def login(credentials: UserLogin, db: AsyncSession = Depends(get_db)):
             detail="Inactive user",
         )
 
-    # Create tokens
-    access_token = create_access_token(data={"sub": user.id, "email": user.email})
-    refresh_token = create_refresh_token(data={"sub": user.id})
+    # Create tokens (sub must be a string per JWT spec)
+    access_token = create_access_token(data={"sub": str(user.id), "email": user.email})
+    refresh_token = create_refresh_token(data={"sub": str(user.id)})
 
     return Token(access_token=access_token, refresh_token=refresh_token)
 
