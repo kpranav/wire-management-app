@@ -25,7 +25,7 @@ class Settings(BaseSettings):
 
     # CORS - can be overridden with comma-separated env var
     CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001,http://localhost:5173"
-    
+
     @property
     def cors_origins_list(self) -> list[str]:
         """Parse CORS_ORIGINS string into list."""
