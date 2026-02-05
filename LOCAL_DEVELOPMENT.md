@@ -150,24 +150,40 @@ npm run dev
 
 ## Pre-Commit Checks
 
-Before pushing to GitHub, run all checks:
+**IMPORTANT**: Before pushing to GitHub, always format your code first, then run all checks:
 
 ```bash
+# Backend - Format first, then check
+cd backend
+make format        # Auto-fixes Ruff + Black formatting
+make all-checks    # Runs lint + type-check + test
+
+# Frontend - Format first, then check
+cd frontend
+make format        # Auto-fixes ESLint
+make all-checks    # Runs lint + type-check + test
+```
+
+**Quick one-liner for each:**
+```bash
 # Backend
-cd backend && make all-checks
+cd backend && make format && make all-checks
 
 # Frontend
-cd frontend && make all-checks
+cd frontend && make format && make all-checks
 ```
 
 ## CI/CD Pipeline
 
 The GitHub Actions workflow automatically runs:
 1. **Lint**: Ruff (Python), ESLint (TypeScript)
-2. **Type Check**: Mypy (Python), tsc (TypeScript)
-3. **Test**: Pytest (Python), Vitest (React)
-4. **Build**: Docker images
-5. **Deploy**: To appropriate environment based on branch
+2. **Format Check**: Black (Python) - will fail if code isn't formatted
+3. **Type Check**: Mypy (Python), tsc (TypeScript)
+4. **Test**: Pytest (Python), Vitest (React)
+5. **Build**: Docker images
+6. **Deploy**: To appropriate environment based on branch
+
+**⚠️ CI/CD will fail if code isn't formatted with Black!** Always run `make format` before pushing.
 
 Running these checks locally before pushing ensures your code passes CI/CD.
 
