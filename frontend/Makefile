@@ -2,6 +2,7 @@ lint:
 	npm run lint
 
 format:
+	npm run format
 	npm run lint -- --fix
 
 type-check:
@@ -10,6 +11,9 @@ type-check:
 test:
 	npm run test
 
-all-checks: lint type-check test
+format-check:
+	npm run format:check
+
+all-checks: lint format-check type-check test
 
 .PHONY: lint format type-check test all-checks

@@ -63,7 +63,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd frontend
-          npm ci
+          npm ci --prefer-offline --no-audit
 
       - name: Lint
         run: |
