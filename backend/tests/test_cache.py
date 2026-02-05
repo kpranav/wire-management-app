@@ -21,6 +21,10 @@ async def test_cache_service_wire_list():
         async def set(self, key, value, ttl=300):
             self.store[key] = value
 
+        async def setex(self, key, ttl, value):
+            """Redis setex method: SET with EXpire."""
+            self.store[key] = value
+
         async def delete(self, key):
             self.store.pop(key, None)
 
@@ -62,6 +66,11 @@ async def test_cache_service_rate_limit():
             return self.store.get(key)
 
         async def set(self, key, value, ttl=300):
+            self.store[key] = value
+            self.counters[key] = int(value)
+
+        async def setex(self, key, ttl, value):
+            """Redis setex method: SET with EXpire."""
             self.store[key] = value
             self.counters[key] = int(value)
 

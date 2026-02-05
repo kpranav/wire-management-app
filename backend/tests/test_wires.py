@@ -44,7 +44,7 @@ async def test_create_wire_unauthorized(client: AsyncClient):
         },
     )
 
-    assert response.status_code == 403
+    assert response.status_code == 401  # HTTPBearer returns 401 for missing auth
 
 
 @pytest.mark.asyncio
@@ -139,7 +139,7 @@ async def test_update_wire_invalid_status(client: AsyncClient, auth_headers: dic
         headers=auth_headers,
     )
 
-    assert response.status_code == 400
+    assert response.status_code == 422  # Pydantic validation returns 422
 
 
 @pytest.mark.asyncio
