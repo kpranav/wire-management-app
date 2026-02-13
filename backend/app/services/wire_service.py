@@ -1,10 +1,12 @@
 """Wire service for business logic."""
+
 import secrets
 import string
-from typing import Optional
+
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
-from app.models import Wire, WireStatus, User
+
+from app.models import User, Wire, WireStatus
 
 
 def generate_reference_number(length: int = 12) -> str:
@@ -27,9 +29,7 @@ async def create_wire(
 
     # Ensure reference number is unique
     while True:
-        result = await db.execute(
-            select(Wire).where(Wire.reference_number == reference_number)
-        )
+        result = await db.execute(select(Wire).where(Wire.reference_number == reference_number))
         existing = result.scalar_one_or_none()
         if not existing:
             break
@@ -53,11 +53,9 @@ async def create_wire(
     return wire
 
 
-async def get_wire_by_id(db: AsyncSession, wire_id: int, user: User) -> Optional[Wire]:
+async def get_wire_by_id(db: AsyncSession, wire_id: int, user: User) -> Wire | None:
     """Get a wire by ID for the current user."""
-    result = await db.execute(
-        select(Wire).where(Wire.id == wire_id, Wire.created_by == user.id)
-    )
+    result = await db.execute(select(Wire).where(Wire.id == wire_id, Wire.created_by == user.id))
     return result.scalar_one_or_none()
 
 
@@ -66,7 +64,7 @@ async def get_wires_paginated(
     user: User,
     page: int = 1,
     page_size: int = 20,
-    status: Optional[str] = None,
+    status: str | None = None,
 ) -> tuple[list[Wire], int]:
     """Get paginated wires for the current user."""
     query = select(Wire).where(Wire.created_by == user.id)

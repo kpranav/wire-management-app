@@ -63,7 +63,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd frontend
-          npm ci
+          npm ci --prefer-offline --no-audit
 
       - name: Lint
         run: |
@@ -100,30 +100,46 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push backend image
-        run: |
-          cd backend
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/wire-api:${{ github.sha }} .
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/wire-api:latest .
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/wire-api:${{ github.sha }}
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/wire-api:latest
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/wire-api:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/wire-api:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/wire-api:latest
+          cache-to: type=inline
 
       - name: Build and push frontend image
-        run: |
-          cd frontend
-          docker build \
-            --build-arg VITE_API_URL=http://localhost:8001 \
-            --build-arg VITE_WS_URL=ws://localhost:8001 \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/wire-ui:${{ github.sha }} \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/wire-ui:latest \
-            .
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/wire-ui:${{ github.sha }}
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/wire-ui:latest
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          build-args: |
+            VITE_API_URL=http://localhost:8001
+            VITE_WS_URL=ws://localhost:8001
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/wire-ui:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/wire-ui:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/wire-ui:latest
+          cache-to: type=inline
 
   deploy-dev:
     needs: build-images
     if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy Docker Compose file to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "docker-compose.dev.yml"
+          target: "/home/ec2-user/wire-app-dev/"
+
       - name: Deploy to Dev
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -131,11 +147,12 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/ec2-user/wire-app
+            cd /home/ec2-user/wire-app-dev
             export IMAGE_TAG=${{ github.sha }}
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
-            docker compose -f docker-compose.dev.yml pull
-            docker compose -f docker-compose.dev.yml up -d
+            export EC2_HOST=${{ secrets.EC2_HOST }}
+            docker-compose -f docker-compose.dev.yml pull
+            docker-compose -f docker-compose.dev.yml up -d
             echo "✅ Dev deployment completed"
 
   deploy-qa:
@@ -143,6 +160,17 @@ jobs:
     if: github.ref == 'refs/heads/qa'
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy Docker Compose file to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "docker-compose.qa.yml"
+          target: "/home/ec2-user/wire-app-qa/"
+
       - name: Deploy to QA
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -150,21 +178,33 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/ec2-user/wire-app
+            cd /home/ec2-user/wire-app-qa
             export IMAGE_TAG=${{ github.sha }}
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
-            docker compose -f docker-compose.qa.yml pull
-            docker compose -f docker-compose.qa.yml up -d
+            export EC2_HOST=${{ secrets.EC2_HOST }}
+            export QA_DB_PASSWORD=${{ secrets.QA_DB_PASSWORD }}
+            export QA_JWT_SECRET=${{ secrets.QA_JWT_SECRET }}
+            docker-compose -f docker-compose.qa.yml pull
+            docker-compose -f docker-compose.qa.yml up -d
             echo "✅ QA deployment completed"
 
   deploy-uat:
     needs: build-images
     if: github.ref == 'refs/heads/uat'
     runs-on: ubuntu-latest
-    environment:
-      name: uat
-      url: http://${{ secrets.EC2_HOST }}:3003
+    environment: uat
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy Docker Compose file to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "docker-compose.uat.yml"
+          target: "/home/ec2-user/wire-app-uat/"
+
       - name: Deploy to UAT
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -172,23 +212,33 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/ec2-user/wire-app
+            cd /home/ec2-user/wire-app-uat
             export IMAGE_TAG=${{ github.sha }}
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            export EC2_HOST=${{ secrets.EC2_HOST }}
             export UAT_DB_PASSWORD=${{ secrets.UAT_DB_PASSWORD }}
             export UAT_JWT_SECRET=${{ secrets.UAT_JWT_SECRET }}
-            docker compose -f docker-compose.uat.yml pull
-            docker compose -f docker-compose.uat.yml up -d
+            docker-compose -f docker-compose.uat.yml pull
+            docker-compose -f docker-compose.uat.yml up -d
             echo "✅ UAT deployment completed"
 
   deploy-prod:
     needs: build-images
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    environment:
-      name: production
-      url: http://${{ secrets.EC2_HOST }}:3000
+    environment: production
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy Docker Compose file to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "docker-compose.prod.yml"
+          target: "/home/ec2-user/wire-app-prod/"
+
       - name: Deploy to Production
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -196,11 +246,12 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/ec2-user/wire-app
+            cd /home/ec2-user/wire-app-prod
             export IMAGE_TAG=${{ github.sha }}
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            export EC2_HOST=${{ secrets.EC2_HOST }}
             export PROD_DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
             export PROD_JWT_SECRET=${{ secrets.PROD_JWT_SECRET }}
-            docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml up -d
+            docker-compose -f docker-compose.prod.yml pull
+            docker-compose -f docker-compose.prod.yml up -d
             echo "✅ Production deployment completed"

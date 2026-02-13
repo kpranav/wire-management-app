@@ -1,6 +1,6 @@
 """Application configuration."""
+
 from pydantic_settings import BaseSettings
-from typing import Optional
 
 
 class Settings(BaseSettings):
@@ -23,8 +23,13 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     ENVIRONMENT: str = "development"
 
-    # CORS
-    CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:3001", "http://localhost:5173"]
+    # CORS - can be overridden with comma-separated env var
+    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001,http://localhost:5173"
+
+    @property
+    def cors_origins_list(self) -> list[str]:
+        """Parse CORS_ORIGINS string into list."""
+        return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
 
     # Feature Flags
     FEATURE_CSV_EXPORT: bool = False

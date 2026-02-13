@@ -1,8 +1,8 @@
 """WebSocket router for real-time updates."""
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from typing import List
-import json
+
 import asyncio
+
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 router = APIRouter(prefix="/ws", tags=["WebSocket"])
 
@@ -11,7 +11,7 @@ class ConnectionManager:
     """Manage WebSocket connections."""
 
     def __init__(self):
-        self.active_connections: List[WebSocket] = []
+        self.active_connections: list[WebSocket] = []
 
     async def connect(self, websocket: WebSocket):
         """Accept and store new connection."""
@@ -25,7 +25,8 @@ class ConnectionManager:
 
     async def broadcast(self, message: dict):
         """Broadcast message to all connected clients."""
-        for connection in self.active_connections[:]:  # Create a copy to avoid modification during iteration
+        # Create a copy to avoid modification during iteration
+        for connection in self.active_connections[:]:
             try:
                 await connection.send_json(message)
             except Exception:
@@ -45,13 +46,15 @@ async def websocket_endpoint(websocket: WebSocket):
         # Keep connection alive and listen for messages
         while True:
             # Receive data from client
-            data = await websocket.receive_text()
+            await websocket.receive_text()
 
             # Echo back or handle client messages
-            await websocket.send_json({
-                "type": "ack",
-                "message": "Message received",
-            })
+            await websocket.send_json(
+                {
+                    "type": "ack",
+                    "message": "Message received",
+                }
+            )
 
     except WebSocketDisconnect:
         manager.disconnect(websocket)

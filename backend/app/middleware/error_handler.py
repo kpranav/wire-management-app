@@ -1,9 +1,11 @@
 """Global error handling middleware."""
-from fastapi import Request, HTTPException, status
-from fastapi.responses import JSONResponse
-from fastapi.exceptions import RequestValidationError
-from datetime import datetime
+
 import logging
+from datetime import datetime
+
+from fastapi import HTTPException, Request, status
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +23,9 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
     )
 
 
-async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+async def validation_exception_handler(
+    request: Request, exc: RequestValidationError
+) -> JSONResponse:
     """Handle validation errors."""
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,

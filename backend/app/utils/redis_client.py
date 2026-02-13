@@ -1,15 +1,15 @@
 """Redis client for caching and pub/sub."""
+
 from redis.asyncio import Redis
-from typing import Optional
-import json
-import os
+
+from app.config import settings
 
 
 class RedisCache:
     """Redis cache client."""
 
     def __init__(self, redis_url: str):
-        self.redis: Optional[Redis] = None
+        self.redis: Redis | None = None
         self.redis_url = redis_url
 
     async def connect(self):
@@ -25,7 +25,7 @@ class RedisCache:
         if self.redis:
             await self.redis.close()
 
-    async def get(self, key: str) -> Optional[str]:
+    async def get(self, key: str) -> str | None:
         """Get value by key."""
         if not self.redis:
             return None
@@ -69,8 +69,6 @@ class RedisCache:
 
 
 # Global cache instance
-from app.config import settings
-
 cache = RedisCache(redis_url=settings.REDIS_URL)
 
 

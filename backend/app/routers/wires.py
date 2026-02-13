@@ -1,11 +1,11 @@
 """Wire transfer CRUD endpoints."""
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from typing import Optional
+
 from app.database import get_db
-from app.models import User, Wire, WireStatus
-from app.schemas import WireCreate, WireUpdate, WireResponse, WireListResponse
+from app.models import User, WireStatus
+from app.schemas import WireCreate, WireListResponse, WireResponse, WireUpdate
 from app.services.auth_service import get_current_user
 from app.services.wire_service import create_wire, get_wire_by_id, get_wires_paginated
 
@@ -35,7 +35,7 @@ async def create_wire_endpoint(
 async def list_wires(
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(20, ge=1, le=100, description="Items per page"),
-    status: Optional[str] = Query(None, description="Filter by status"),
+    status: str | None = Query(None, description="Filter by status"),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):

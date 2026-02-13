@@ -1,5 +1,7 @@
 """Tests for caching functionality."""
+
 import pytest
+
 from app.services.cache_service import CacheService
 from app.utils.redis_client import RedisCache
 
@@ -7,6 +9,7 @@ from app.utils.redis_client import RedisCache
 @pytest.mark.asyncio
 async def test_cache_service_wire_list():
     """Test caching wire list."""
+
     # Mock Redis client for testing
     class MockRedis:
         def __init__(self):
@@ -16,6 +19,10 @@ async def test_cache_service_wire_list():
             return self.store.get(key)
 
         async def set(self, key, value, ttl=300):
+            self.store[key] = value
+
+        async def setex(self, key, ttl, value):
+            """Redis setex method: SET with EXpire."""
             self.store[key] = value
 
         async def delete(self, key):
@@ -49,6 +56,7 @@ async def test_cache_service_wire_list():
 @pytest.mark.asyncio
 async def test_cache_service_rate_limit():
     """Test rate limiting."""
+
     class MockRedis:
         def __init__(self):
             self.store = {}
@@ -58,6 +66,11 @@ async def test_cache_service_rate_limit():
             return self.store.get(key)
 
         async def set(self, key, value, ttl=300):
+            self.store[key] = value
+            self.counters[key] = int(value)
+
+        async def setex(self, key, ttl, value):
+            """Redis setex method: SET with EXpire."""
             self.store[key] = value
             self.counters[key] = int(value)
 

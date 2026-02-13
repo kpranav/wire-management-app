@@ -3,7 +3,15 @@
  */
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ThemeProvider, createTheme, CssBaseline, AppBar, Toolbar, Typography, Button } from '@mui/material';
+import {
+  ThemeProvider,
+  createTheme,
+  CssBaseline,
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+} from '@mui/material';
 import { Login } from './components/Login';
 import { WireList } from './components/WireList';
 import { WireDetail } from './components/WireDetail';

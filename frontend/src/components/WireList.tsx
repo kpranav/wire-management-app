@@ -96,11 +96,7 @@ export function WireList() {
           <IconButton onClick={() => refetch()} sx={{ mr: 1 }}>
             <Refresh />
           </IconButton>
-          <Button
-            variant="contained"
-            startIcon={<Add />}
-            onClick={() => navigate('/wires/new')}
-          >
+          <Button variant="contained" startIcon={<Add />} onClick={() => navigate('/wires/new')}>
             New Wire
           </Button>
         </Box>

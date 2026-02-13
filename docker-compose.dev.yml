@@ -1,5 +1,5 @@
-version: '3.8'
-
+# Dev environment - for local development. When deploying to a public server,
+# set DEV_DB_PASSWORD and DEV_JWT_SECRET to strong values.
 services:
   postgres-dev:
     image: postgres:15-alpine
@@ -8,7 +8,7 @@ services:
     environment:
       POSTGRES_DB: wire_dev
       POSTGRES_USER: wireuser
-      POSTGRES_PASSWORD: devpass123
+      POSTGRES_PASSWORD: ${DEV_DB_PASSWORD:-devpass123}
     ports:
       - "5432:5432"
     volumes:
@@ -29,17 +29,18 @@ services:
       - redis-dev-data:/data
 
   api-dev:
-    build: ./backend
+    image: ${DOCKERHUB_USERNAME}/wire-api:${IMAGE_TAG:-latest}
     container_name: wire-api-dev
     restart: unless-stopped
     ports:
       - "8001:8000"
     environment:
-      DATABASE_URL: postgresql+asyncpg://wireuser:devpass123@postgres-dev:5432/wire_dev
+      DATABASE_URL: postgresql+asyncpg://wireuser:${DEV_DB_PASSWORD:-devpass123}@postgres-dev:5432/wire_dev
       REDIS_URL: redis://redis-dev:6379/0
-      JWT_SECRET: dev-secret-key-change-in-production
+      JWT_SECRET: ${DEV_JWT_SECRET:-dev-secret-key-change-in-production}
       ENVIRONMENT: development
       DEBUG: "true"
+      CORS_ORIGINS: "http://localhost:3000,http://localhost:3001,http://localhost:5173,http://${EC2_HOST:-localhost}:3001"
       FEATURE_CSV_EXPORT: "true"
       FEATURE_ADVANCED_FILTERS: "true"
       FEATURE_AUDIT_LOG: "true"
@@ -48,18 +49,9 @@ services:
         condition: service_healthy
       redis-dev:
         condition: service_started
-    volumes:
-      - ./backend:/app
 
   ui-dev:
-    build:
-      context: ./frontend
-      args:
-        VITE_API_URL: http://localhost:8001
-        VITE_WS_URL: ws://localhost:8001
-        VITE_FEATURE_CSV_EXPORT: "true"
-        VITE_FEATURE_ADVANCED_FILTERS: "true"
-        VITE_FEATURE_AUDIT_LOG: "true"
+    image: ${DOCKERHUB_USERNAME}/wire-ui:${IMAGE_TAG:-latest}
     container_name: wire-ui-dev
     restart: unless-stopped
     ports:

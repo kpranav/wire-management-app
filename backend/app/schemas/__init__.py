@@ -1,16 +1,17 @@
 """Schemas package."""
+
 from app.schemas.auth import (
+    Token,
+    TokenData,
     UserCreate,
     UserLogin,
     UserResponse,
-    Token,
-    TokenData,
 )
 from app.schemas.wire import (
     WireCreate,
-    WireUpdate,
-    WireResponse,
     WireListResponse,
+    WireResponse,
+    WireUpdate,
 )
 
 __all__ = [

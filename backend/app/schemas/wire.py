@@ -1,8 +1,8 @@
 """Pydantic schemas for wire transfers."""
-from pydantic import BaseModel, Field, condecimal
+
 from datetime import datetime
-from typing import Optional
-from decimal import Decimal
+
+from pydantic import BaseModel, Field, condecimal
 
 
 class WireBase(BaseModel):
@@ -23,11 +23,11 @@ class WireCreate(WireBase):
 class WireUpdate(BaseModel):
     """Schema for updating a wire transfer."""
 
-    sender_name: Optional[str] = Field(None, min_length=1, max_length=200)
-    recipient_name: Optional[str] = Field(None, min_length=1, max_length=200)
-    amount: Optional[condecimal(max_digits=15, decimal_places=2, gt=0)] = None  # type: ignore
-    currency: Optional[str] = Field(None, pattern="^[A-Z]{3}$")
-    status: Optional[str] = Field(None, pattern="^(pending|processing|completed|failed)$")
+    sender_name: str | None = Field(None, min_length=1, max_length=200)
+    recipient_name: str | None = Field(None, min_length=1, max_length=200)
+    amount: condecimal(max_digits=15, decimal_places=2, gt=0) | None = None  # type: ignore
+    currency: str | None = Field(None, pattern="^[A-Z]{3}$")
+    status: str | None = Field(None, pattern="^(pending|processing|completed|failed)$")
 
 
 class WireResponse(WireBase):
@@ -35,10 +35,10 @@ class WireResponse(WireBase):
 
     id: int
     status: str
-    reference_number: Optional[str]
+    reference_number: str | None
     created_by: int
     created_at: datetime
-    updated_at: Optional[datetime]
+    updated_at: datetime | None
 
     class Config:
         from_attributes = True
