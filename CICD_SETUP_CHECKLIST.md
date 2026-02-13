@@ -36,11 +36,10 @@ Go to your GitHub repository → **Settings** → **Secrets and variables** → 
    - Value: `ec2-user` (for Amazon Linux) or `ubuntu` (for Ubuntu)
 
 5. **`EC2_SSH_KEY`**
-   - Value: Contents of your SSH private key
-   - From: `/Users/pranav/source/aws/kpranav_keypair_01.pem`
+   - Value: Contents of your SSH private key (.pem file)
    - How to get it:
      ```bash
-     cat /Users/pranav/source/aws/kpranav_keypair_01.pem
+     cat /path/to/your-key.pem
      ```
    - Copy the entire output including `-----BEGIN RSA PRIVATE KEY-----` and `-----END RSA PRIVATE KEY-----`
 
@@ -87,7 +86,7 @@ Go to your repository → **Settings** → **Environments**
     - Selected branches: `uat` only
 - **Environment secrets** (Click "Add secret" for each):
   - Name: `UAT_DATABASE_URL`  
-    Value: `postgresql+asyncpg://wireuser:uatpass789@postgres-uat:5432/wire_uat`
+    Value: `postgresql+asyncpg://wireuser:<UAT_PASSWORD>@postgres-uat:5432/wire_uat` (generate strong password)
   - Name: `UAT_REDIS_URL`  
     Value: `redis://redis-uat:6379/0`
   - Name: `UAT_JWT_SECRET`  
@@ -115,34 +114,34 @@ Go to your repository → **Settings** → **Environments**
 
 ### What About Dev and QA?
 
-**Dev and QA environments DO NOT need GitHub Environments** because:
-- They auto-deploy without approvals
-- They use default credentials from `docker-compose.dev.yml` and `docker-compose.qa.yml`
-- No additional secrets needed
+**Dev environment** does not need GitHub Environment - it uses defaults from `docker-compose.dev.yml` (override with `DEV_DB_PASSWORD` and `DEV_JWT_SECRET` when deploying to a public server).
+
+**QA environment** requires repository secrets `QA_DB_PASSWORD` and `QA_JWT_SECRET` - add these in Settings → Secrets and variables → Actions.
 
 ### Complete Environment Credentials Reference
 
 Here's what credentials each environment uses:
 
-#### Dev Environment (from docker-compose.dev.yml)
+#### Dev Environment (from docker-compose.dev.yml or env vars)
 ```
-Database: postgresql+asyncpg://wireuser:devpass123@postgres-dev:5432/wire_dev
+Database: postgresql+asyncpg://wireuser:<DEV_DB_PASSWORD>@postgres-dev:5432/wire_dev
 Redis: redis://redis-dev:6379/0
-JWT_SECRET: dev-secret-key-change-in-production
+JWT_SECRET: <DEV_JWT_SECRET>
 Ports: 8001 (API), 3001 (UI)
+Note: Use strong values when deploying to a publicly accessible server.
 ```
 
-#### QA Environment (from docker-compose.qa.yml)
+#### QA Environment (from docker-compose.qa.yml or GitHub secrets)
 ```
-Database: postgresql+asyncpg://wireuser:qapass456@postgres-qa:5432/wire_qa
+Database: postgresql+asyncpg://wireuser:<QA_DB_PASSWORD>@postgres-qa:5432/wire_qa
 Redis: redis://redis-qa:6379/0
-JWT_SECRET: qa-secret-key-change-in-production
+JWT_SECRET: <QA_JWT_SECRET>
 Ports: 8002 (API), 3002 (UI)
 ```
 
 #### UAT Environment (from GitHub Environment secrets)
 ```
-UAT_DATABASE_URL: postgresql+asyncpg://wireuser:uatpass789@postgres-uat:5432/wire_uat
+UAT_DATABASE_URL: postgresql+asyncpg://wireuser:<UAT_PASSWORD>@postgres-uat:5432/wire_uat
 UAT_REDIS_URL: redis://redis-uat:6379/0
 UAT_JWT_SECRET: <Generate 64-char random string>
 Ports: 8003 (API), 3003 (UI)
@@ -173,8 +172,8 @@ python3 -c "import secrets; print(secrets.token_urlsafe(24))"
 SSH into your EC2 instance and follow the setup:
 
 ```bash
-# SSH into EC2
-ssh -i /Users/pranav/source/aws/kpranav_keypair_01.pem ec2-user@ec2-51-20-55-26.eu-north-1.compute.amazonaws.com
+# SSH into EC2 (replace with your key path and EC2 host)
+ssh -i /path/to/your-key.pem ec2-user@YOUR_EC2_HOST
 ```
 
 ### Install Docker (if not already done)
@@ -275,7 +274,7 @@ The CI checks will run automatically on every push/PR. To trigger manually:
 
 ```bash
 # Make a small change
-cd /Users/pranav/source/wire-management-app
+cd wire-management-app
 echo "# CI/CD Pipeline Active" >> README.md
 
 # Commit and push to develop
@@ -394,6 +393,8 @@ Repository Secrets (Settings → Secrets and variables → Actions):
 ☐ EC2_HOST - EC2 public IP address
 ☐ EC2_USERNAME - ec2-user (Amazon Linux) or ubuntu
 ☐ EC2_SSH_KEY - Contents of your .pem file
+☐ QA_DB_PASSWORD - QA database password (required for QA deployment)
+☐ QA_JWT_SECRET - QA JWT secret (generate with: python3 -c "import secrets; print(secrets.token_urlsafe(48))")
 ☐ OPENAI_API_KEY - OpenAI API key (optional, for AI code review)
 
 Environment: uat (Settings → Environments → uat):
@@ -411,8 +412,8 @@ Environment: production (Settings → Environments → production):
 ☐ Wait timer: 5 minutes
 ☐ Deployment branches: main only
 
-Note: Dev and QA environments don't need GitHub Environments - they use
-defaults from docker-compose.dev.yml and docker-compose.qa.yml
+Note: Dev uses defaults from docker-compose.dev.yml. QA requires QA_DB_PASSWORD
+and QA_JWT_SECRET repository secrets.
 ```
 
 ## 🎯 Next Steps

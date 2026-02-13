@@ -182,6 +182,8 @@ jobs:
             export IMAGE_TAG=${{ github.sha }}
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
             export EC2_HOST=${{ secrets.EC2_HOST }}
+            export QA_DB_PASSWORD=${{ secrets.QA_DB_PASSWORD }}
+            export QA_JWT_SECRET=${{ secrets.QA_JWT_SECRET }}
             docker-compose -f docker-compose.qa.yml pull
             docker-compose -f docker-compose.qa.yml up -d
             echo "✅ QA deployment completed"

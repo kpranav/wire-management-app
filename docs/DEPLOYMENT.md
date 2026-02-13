@@ -101,7 +101,7 @@ If CI/CD is down, you can deploy manually:
 
 ```bash
 # SSH to EC2
-ssh -i ~/.aws/kpranav_keypair_01.pem ec2-user@YOUR-EC2-IP
+ssh -i /path/to/your-key.pem ec2-user@YOUR_EC2_IP
 
 cd /home/ec2-user/wire-app
 
@@ -125,7 +125,7 @@ docker compose -f docker-compose.prod.yml logs -f
 
 ```bash
 # SSH to EC2
-ssh -i ~/.aws/kpranav_keypair_01.pem ec2-user@YOUR-EC2-IP
+ssh -i /path/to/your-key.pem ec2-user@YOUR_EC2_IP
 
 cd /home/ec2-user/wire-app
 
@@ -200,7 +200,7 @@ alembic downgrade -1
 ### Verify on EC2
 
 ```bash
-ssh -i ~/.aws/kpranav_keypair_01.pem ec2-user@YOUR-EC2-IP
+ssh -i /path/to/your-key.pem ec2-user@YOUR_EC2_IP
 
 # Check running containers
 docker ps

@@ -6,7 +6,7 @@ This guide explains how to set up your EC2 instance for deploying the Wire Manag
 
 - AWS account
 - EC2 instance launched (Amazon Linux 2 or Ubuntu recommended)
-- SSH key pair (e.g., `kpranav_keypair_01.pem`)
+- SSH key pair (e.g., `your-key.pem`)
 - EC2 instance with at least 4GB RAM (t3.medium recommended)
 
 ## 1. Initial EC2 Setup
@@ -14,7 +14,7 @@ This guide explains how to set up your EC2 instance for deploying the Wire Manag
 ### SSH into your EC2 instance
 
 ```bash
-ssh -i ~/.aws/kpranav_keypair_01.pem ec2-user@YOUR-EC2-PUBLIC-IP
+ssh -i /path/to/your-key.pem ec2-user@YOUR_EC2_PUBLIC_IP
 ```
 
 ### Update system packages
@@ -92,7 +92,7 @@ From your local machine:
 
 ```bash
 # Copy all docker-compose files to EC2
-scp -i ~/.aws/kpranav_keypair_01.pem docker-compose.*.yml ec2-user@YOUR-EC2-IP:/home/ec2-user/wire-app/
+scp -i /path/to/your-key.pem docker-compose.*.yml ec2-user@YOUR_EC2_IP:/home/ec2-user/wire-app/
 ```
 
 ## 6. Configure Security Group
@@ -144,7 +144,7 @@ openssl rand -base64 32
 
 ```bash
 # SSH into EC2
-ssh -i ~/.aws/kpranav_keypair_01.pem ec2-user@YOUR-EC2-IP
+ssh -i /path/to/your-key.pem ec2-user@YOUR_EC2_IP
 
 cd /home/ec2-user/wire-app
 

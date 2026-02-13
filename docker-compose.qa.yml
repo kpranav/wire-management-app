@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_DB: wire_qa
       POSTGRES_USER: wireuser
-      POSTGRES_PASSWORD: ${QA_DB_PASSWORD:-qapass123}
+      POSTGRES_PASSWORD: ${QA_DB_PASSWORD}
     ports:
       - "5433:5432"
     volumes:
@@ -28,7 +28,7 @@ services:
     ports:
       - "8002:8000"
     environment:
-      DATABASE_URL: postgresql+asyncpg://wireuser:${QA_DB_PASSWORD:-qapass123}@postgres-qa:5432/wire_qa
+      DATABASE_URL: postgresql+asyncpg://wireuser:${QA_DB_PASSWORD}@postgres-qa:5432/wire_qa
       REDIS_URL: redis://redis-qa:6379/0
       JWT_SECRET: ${QA_JWT_SECRET}
       ENVIRONMENT: qa
